@@ -93,12 +93,10 @@ export class AppComponent {
 
   printCertificatesAsPdf() {
     this.printService.printCertificatesAsPdf(this.wcif, this.getSelectedEvents());
-    this.apiService.logUserClicksDownloadCertificatesAsPdf(this.wcif.id);
   }
 
   printCertificatesAsZip() {
     this.printService.printCertificatesAsZip(this.wcif, this.getSelectedEvents());
-    this.apiService.logUserClicksDownloadCertificatesAsZip(this.wcif.id);
   }
 
   private getSelectedEvents() {
@@ -252,12 +250,10 @@ export class AppComponent {
 
   printParticipationCertificatesAsPdf() {
     this.printService.printParticipationCertificatesAsPdf(this.wcif, this.personsWithAResult);
-    this.apiService.logUserClicksDownloadParticipationCertificatesAsPdf(this.wcif.id);
   }
 
   printParticipationCertificatesAsZip() {
     this.printService.printParticipationCertificatesAsZip(this.wcif, this.personsWithAResult);
-    this.apiService.logUserClicksDownloadParticipationCertificatesAsZip(this.wcif.id);
   }
 
   version() {
