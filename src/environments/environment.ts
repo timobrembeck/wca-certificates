@@ -5,7 +5,6 @@ export const environment = {
   wcaUrl : 'https://staging.worldcubeassociation.org',
 
   wcaAppId : 'example-application-id',
-  wcaSecret : 'example-secret',
 
   version: 'local',
   testMode: true
