@@ -140,7 +140,7 @@ export class TranslationHelper {
           '{"text": "certificate.result", "bold": "true"},' + '\n' +
           '" certificate.resultUnit"' + '\n' +
           ']';
-      case 'de-ch':
+      case 'de-de':
         return '[' + '\n' +
           '"\\n\\n\\n",' + '\n' +
           '{"text": "certificate.delegate", "bold": "true"},' + '\n' +
@@ -261,7 +261,7 @@ export class TranslationHelper {
           '{"text": "certificate.competitionName", "bold": "true"},' + '\n' +
           '", obteniendo los siguientes resultados:\\n\\n"' + '\n' +
           ']';
-      case 'de-ch':
+      case 'de-de':
         return '[' + '\n' +
           '"\\n\\n\\n",' + '\n' +
           '{"text": "certificate.delegate", "bold": "true"},' + '\n' +
@@ -297,7 +297,7 @@ export class TranslationHelper {
         return 'и';
       case 'es-mx':
         return 'y';
-      case 'de-ch':
+      case 'de-de':
         return 'und';
       default:
         return '';
@@ -317,7 +317,7 @@ export class TranslationHelper {
         return 'первое';
       case 'es-mx':
         return 'primer';
-      case 'de-ch':
+      case 'de-de':
         return 'ersten';
       default:
         return this.getFirst('en');
@@ -337,7 +337,7 @@ export class TranslationHelper {
         return 'второе';
       case 'es-mx':
         return 'segundo';
-      case 'de-ch':
+      case 'de-de':
         return 'zweiten';
       default:
         return this.getSecond('en');
@@ -357,7 +357,7 @@ export class TranslationHelper {
         return 'третье';
       case 'es-mx':
         return 'tercer';
-      case 'de-ch':
+      case 'de-de':
         return 'dritten';
       default:
         return this.getThird('en');
@@ -377,7 +377,7 @@ export class TranslationHelper {
         return ''; // Russian has different words depending on the number, too hard :(
       case 'es-mx':
         return 'movimientos';
-      case 'de-ch':
+      case 'de-de':
         return 'Zügen';
       default:
         return this.getMoves('en');
@@ -397,7 +397,7 @@ export class TranslationHelper {
         return 'с результатом';
       case 'es-mx':
         return 'un resultado';
-      case 'de-ch':
+      case 'de-de':
         return 'einem Ergebnis';
       default:
         return this.getAResult('en');
@@ -417,7 +417,7 @@ export class TranslationHelper {
         return 'со средним';
       case 'es-mx':
         return 'un promedio';
-      case 'de-ch':
+      case 'de-de':
         return 'einem Durchschnitt';
       default:
         return this.getAnAverage('en');
@@ -437,7 +437,7 @@ export class TranslationHelper {
         return 'со средним результатом';
       case 'es-mx':
         return 'una media';
-      case 'de-ch':
+      case 'de-de':
         return 'einem Mittelwert';
       default:
         return this.getAMean('en');
@@ -457,7 +457,7 @@ export class TranslationHelper {
         return 'с лучшим результатом';
       case 'es-mx':
         return 'un mejor resultado';
-      case 'de-ch':
+      case 'de-de':
         return 'einem besten Ergebnis';
       default:
         return this.getASingle('en');
@@ -475,7 +475,7 @@ export class TranslationHelper {
         return 'Дисциплина';
       case 'es-mx':
         return 'Evento';
-      case 'de-ch':
+      case 'de-de':
         return 'Disziplin';
       default:
         return this.getEvent('en');
@@ -493,7 +493,7 @@ export class TranslationHelper {
         return 'Результат';
       case 'es-mx':
         return 'Resultado';
-      case 'de-ch':
+      case 'de-de':
         return 'Ergebnis';
       default:
         return this.getResult('en');
@@ -511,7 +511,7 @@ export class TranslationHelper {
         return 'Место';
       case 'es-mx':
         return 'Clasificación';
-      case 'de-ch':
+      case 'de-de':
         return 'Platzierung';
       default:
         return this.getRanking('en');
