@@ -46,7 +46,7 @@
                 <td></td>
               </tr>
               <tr *ngFor="let event of wcif.events">
-                <td><input type="checkbox" [(ngModel)]="event.printCertificate"></td>
+                <td><input type="checkbox" [(ngModel)]="event.printCertificate" (change)="saveCompetitionConfig()"></td>
                 <td>{{ printService.getEventName(event.id) }}</td>
                 <td>
                   <input *ngIf="hasDualRoundOption(event)"

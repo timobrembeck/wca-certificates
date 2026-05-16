@@ -66,7 +66,6 @@ export class AppComponent {
       try {
         this.acceptedPersons = wcif.persons.filter(p => !!p.registration && p.registration.status === 'accepted').length;
         this.events = this.wcif.events;
-        this.dualRoundEvents = new Set();
         this.events.forEach(function(e) {
           e.rounds.forEach(function(r) {
             const resultsOfEvent = r.results;
@@ -79,6 +78,7 @@ export class AppComponent {
         });
 
         this.personsWithAResult = wcif.persons.filter(p => !!p['hasAResult']);
+        this.loadCompetitionConfig(competitionId);
         this.state = 'PRINT';
       } catch (error) {
         this.loading = false;
@@ -178,6 +178,29 @@ export class AppComponent {
     } else {
       this.dualRoundEvents.add(eventId);
     }
+    this.saveCompetitionConfig();
+  }
+
+  saveCompetitionConfig(): void {
+    if (!this.competitionId) { return; }
+    try {
+      localStorage.setItem(`wca-cert.competition.${this.competitionId}`, JSON.stringify({
+        dualRoundEvents: Array.from(this.dualRoundEvents),
+        selectedEvents: this.events.filter(e => e['printCertificate']).map(e => e.id),
+      }));
+    } catch { }
+  }
+
+  private loadCompetitionConfig(id: string): void {
+    this.dualRoundEvents = new Set();
+    try {
+      const raw = localStorage.getItem(`wca-cert.competition.${id}`);
+      if (!raw) { return; }
+      const cfg = JSON.parse(raw);
+      this.dualRoundEvents = new Set(cfg.dualRoundEvents ?? []);
+      const selected: string[] = cfg.selectedEvents ?? [];
+      this.events.forEach(e => { e['printCertificate'] = selected.includes(e.id); });
+    } catch { }
   }
 
   private getEffectiveResults(event: Event): Result[] {

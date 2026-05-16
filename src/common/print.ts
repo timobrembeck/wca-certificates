@@ -17,21 +17,79 @@ declare var pdfMake: any;
 })
 export class PrintService {
 
-  public language = 'en';
-  public participationLanguage = 'en';
-  public pageOrientation: 'landscape' | 'portrait' = 'landscape';
-  public participationPageOrientation: 'landscape' | 'portrait' = 'landscape';
-  public showLocalNames = false;
+  private static readonly CONFIG_KEY = 'wca-cert.config';
+
+  private _language = 'en';
+  private _participationLanguage = 'en';
+  private _pageOrientation: 'landscape' | 'portrait' = 'landscape';
+  private _participationPageOrientation: 'landscape' | 'portrait' = 'landscape';
+  private _showLocalNames = false;
+  private _countries = '';
+  private _podiumCertificateJson = '';
+  private _participationCertificateJson = '';
+
   public background: string = null;
   public participationBackground: string = null;
-  public countries: string = '';
 
-  public podiumCertificateJson = '';
-  public participationCertificateJson = '';
+  get language(): string { return this._language; }
+  set language(v: string) { this._language = v; this.saveConfig(); }
+
+  get participationLanguage(): string { return this._participationLanguage; }
+  set participationLanguage(v: string) { this._participationLanguage = v; this.saveConfig(); }
+
+  get pageOrientation(): 'landscape' | 'portrait' { return this._pageOrientation; }
+  set pageOrientation(v: 'landscape' | 'portrait') { this._pageOrientation = v; this.saveConfig(); }
+
+  get participationPageOrientation(): 'landscape' | 'portrait' { return this._participationPageOrientation; }
+  set participationPageOrientation(v: 'landscape' | 'portrait') { this._participationPageOrientation = v; this.saveConfig(); }
+
+  get showLocalNames(): boolean { return this._showLocalNames; }
+  set showLocalNames(v: boolean) { this._showLocalNames = v; this.saveConfig(); }
+
+  get countries(): string { return this._countries; }
+  set countries(v: string) { this._countries = v; this.saveConfig(); }
+
+  get podiumCertificateJson(): string { return this._podiumCertificateJson; }
+  set podiumCertificateJson(v: string) { this._podiumCertificateJson = v; this.saveConfig(); }
+
+  get participationCertificateJson(): string { return this._participationCertificateJson; }
+  set participationCertificateJson(v: string) { this._participationCertificateJson = v; this.saveConfig(); }
 
   constructor() {
-    this.podiumCertificateJson = TranslationHelper.getTemplate(this.language);
-    this.participationCertificateJson = TranslationHelper.getParticipationTemplate(this.participationLanguage);
+    this._podiumCertificateJson = TranslationHelper.getTemplate(this._language);
+    this._participationCertificateJson = TranslationHelper.getParticipationTemplate(this._participationLanguage);
+    this.loadConfig();
+  }
+
+  private loadConfig(): void {
+    try {
+      const raw = localStorage.getItem(PrintService.CONFIG_KEY);
+      if (!raw) { return; }
+      const cfg = JSON.parse(raw);
+      if (cfg.language) { this._language = cfg.language; }
+      if (cfg.participationLanguage) { this._participationLanguage = cfg.participationLanguage; }
+      if (cfg.pageOrientation) { this._pageOrientation = cfg.pageOrientation; }
+      if (cfg.participationPageOrientation) { this._participationPageOrientation = cfg.participationPageOrientation; }
+      if (cfg.showLocalNames !== undefined) { this._showLocalNames = cfg.showLocalNames; }
+      if (cfg.countries !== undefined) { this._countries = cfg.countries; }
+      this._podiumCertificateJson = cfg.podiumCertificateJson ?? TranslationHelper.getTemplate(this._language);
+      this._participationCertificateJson = cfg.participationCertificateJson ?? TranslationHelper.getParticipationTemplate(this._participationLanguage);
+    } catch { }
+  }
+
+  private saveConfig(): void {
+    try {
+      localStorage.setItem(PrintService.CONFIG_KEY, JSON.stringify({
+        language: this._language,
+        participationLanguage: this._participationLanguage,
+        pageOrientation: this._pageOrientation,
+        participationPageOrientation: this._participationPageOrientation,
+        showLocalNames: this._showLocalNames,
+        countries: this._countries,
+        podiumCertificateJson: this._podiumCertificateJson,
+        participationCertificateJson: this._participationCertificateJson,
+      }));
+    } catch { }
   }
 
   public getEventName(eventId) {
