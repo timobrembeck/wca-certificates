@@ -34,6 +34,7 @@ export class AppComponent {
   constructor (
           public apiService: ApiService,
           public printService: PrintService) {
+      this.readUrlParams();
       if (this.apiService.oauthToken) {
         this.handleGetCompetitions();
       }
@@ -51,7 +52,23 @@ export class AppComponent {
 
   handleCompetitionSelected(competitionId: string) {
     this.competitionId = competitionId;
+    this.updateUrl(competitionId);
     this.loadWcif(this.competitionId);
+  }
+
+  private readUrlParams(): void {
+    const params = new URLSearchParams(window.location.search);
+    const competitionId = params.get('competition');
+    if (competitionId && this.apiService.oauthToken) {
+      this.competitionId = competitionId;
+      this.loadWcif(competitionId);
+    }
+  }
+
+  private updateUrl(competitionId: string): void {
+    const params = new URLSearchParams();
+    params.set('competition', competitionId);
+    history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
   }
 
   handleRefreshCompetition() {
