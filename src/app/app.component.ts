@@ -7,6 +7,7 @@ import {Result} from '@wca/helpers/lib/models/result';
 import {Person} from '@wca/helpers';
 import {Helpers} from '../common/helpers';
 import { environment } from '../environments/environment';
+import { WcaApiResult } from '../common/types';
 
 @Component({
   selector: 'app-root',
@@ -61,34 +62,92 @@ export class AppComponent {
   private loadWcif(competitionId: string) {
     this.loading = true;
     this.apiService.getWcif(this.competitionId).subscribe(wcif => {
-      this.loading = false;
       this.wcif = wcif;
-      try {
-        this.acceptedPersons = wcif.persons.filter(p => !!p.registration && p.registration.status === 'accepted').length;
-        this.events = this.wcif.events;
-        this.events.forEach(function(e) {
-          e.rounds.forEach(function(r) {
-            const resultsOfEvent = r.results;
-            resultsOfEvent.forEach(function(result) {
-              const personOfResult: Person = wcif.persons.filter(p => p.registrantId === result.personId)[0];
-              result['countryIso2'] = personOfResult.countryIso2;
-              personOfResult['hasAResult'] = true;
-            });
-          });
-        });
-
-        this.personsWithAResult = wcif.persons.filter(p => !!p['hasAResult']);
-        this.loadCompetitionConfig(competitionId);
-        this.state = 'PRINT';
-      } catch (error) {
-        this.loading = false;
-        console.error(error);
-        this.wcif = null;
-        this.competitionId = null;
+      const hasResults = wcif.events.some(e =>
+        e.rounds.some(r => r.results && r.results.length > 0)
+      );
+      if (hasResults) {
+        this.processWcifResults(wcif, competitionId);
+      } else {
+        this.apiService.getResults(this.competitionId).subscribe(
+          apiResults => {
+            if (apiResults && apiResults.length > 0) {
+              this.mergeResultsIntoWcif(wcif, apiResults);
+            }
+            this.processWcifResults(wcif, competitionId);
+          },
+          () => this.processWcifResults(wcif, competitionId)
+        );
       }
     }, (error: any) => {
-      return this.error = error?.error?.error || error?.message;
+      this.loading = false;
+      this.error = error?.error?.error || error?.message;
     });
+  }
+
+  private processWcifResults(wcif: any, competitionId: string) {
+    this.loading = false;
+    try {
+      this.acceptedPersons = wcif.persons.filter(p => !!p.registration && p.registration.status === 'accepted').length;
+      this.events = wcif.events;
+      this.events.forEach(function(e) {
+        e.rounds.forEach(function(r) {
+          r.results.forEach(function(result) {
+            const personOfResult: Person = wcif.persons.filter(p => p.registrantId === result.personId)[0];
+            if (personOfResult) {
+              result['countryIso2'] = personOfResult.countryIso2;
+              personOfResult['hasAResult'] = true;
+            }
+          });
+        });
+      });
+      this.personsWithAResult = wcif.persons.filter(p => !!p['hasAResult']);
+      this.loadCompetitionConfig(competitionId);
+      this.state = 'PRINT';
+    } catch (error) {
+      this.loading = false;
+      console.error(error);
+      this.wcif = null;
+      this.competitionId = null;
+    }
+  }
+
+  private mergeResultsIntoWcif(wcif: any, apiResults: WcaApiResult[]) {
+    const byEventRound = new Map<string, WcaApiResult[]>();
+    for (const r of apiResults) {
+      const key = `${r.event_id}-${r.round_type_id}`;
+      if (!byEventRound.has(key)) { byEventRound.set(key, []); }
+      byEventRound.get(key)!.push(r);
+    }
+    const nameToId = new Map<string, number>();
+    for (const p of wcif.persons) { nameToId.set(p.name, p.registrantId); }
+
+    for (const event of wcif.events) {
+      const total = event.rounds.length;
+      for (let i = 0; i < total; i++) {
+        const round = event.rounds[i];
+        const isLast = i === total - 1;
+        let roundResults: WcaApiResult[] | undefined;
+        if (isLast) {
+          roundResults = byEventRound.get(`${event.id}-f`) ?? byEventRound.get(`${event.id}-c`);
+        }
+        if (!roundResults) {
+          roundResults = byEventRound.get(`${event.id}-${i + 1}`);
+        }
+        if (!roundResults && i === 0) {
+          roundResults = byEventRound.get(`${event.id}-d`);
+        }
+        if (roundResults && roundResults.length > 0) {
+          round.results = roundResults.map(r => ({
+            personId: nameToId.get(r.name) ?? 0,
+            ranking: r.pos,
+            attempts: r.attempts.map(a => ({result: a, reconstruction: null})),
+            best: r.best,
+            average: r.average,
+          }));
+        }
+      }
+    }
   }
 
   printCertificatesAsPdf() {

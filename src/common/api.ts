@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {environment} from '../environments/environment';
+import {WcaApiResult} from './types';
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +51,13 @@ export class ApiService {
     }
     return this.httpClient.get(`${environment.wcaUrl}/api/v0/competitions/${competitionId}/wcif`,
       {headers: this.headerParams});
+  }
+
+  getResults(competitionId: string): Observable<WcaApiResult[]> {
+    return this.httpClient.get<WcaApiResult[]>(
+      `${environment.wcaUrl}/api/v0/competitions/${competitionId}/results`,
+      {headers: this.headerParams}
+    );
   }
 
 }
