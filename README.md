@@ -1,6 +1,6 @@
 Print certificates for WCA competitions using WCA Live
 
-Hosted at: https://goosly.github.io/wca-certificates/
+Hosted at: https://timobrembeck.github.io/wca-certificates/
 
 # Development
 
@@ -10,10 +10,13 @@ To run locally:
 1) > npm install
 2) > npm start
 
-2) Navigate to http://localhost:4200/
+3) Navigate to http://localhost:4200/
 
-To build & deploy to GitHub Pages, install angular-cli-ghpages and run the bash script:
-1) npm install -g angular-cli-ghpages
-2) > sh build-prod.sh
+# Deployment
 
-This builds the app and pushes the 'dist' directory to a branch called 'gh-pages', which will trigger a build by GitHub Pages
+Every push to `main` is automatically built and deployed to GitHub Pages via the `deploy.yml` workflow. No manual steps required.
+
+To build locally (e.g. to test the production build):
+> npm run build-prod
+
+The output is in `dist/wca-certificates/`. The `build-prod.sh` script can still be used for manual deployments if needed (requires `angular-cli-ghpages` installed globally: `npm install -g angular-cli-ghpages`).
