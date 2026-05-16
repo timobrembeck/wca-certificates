@@ -1,5 +1,7 @@
 Print certificates for WCA competitions using WCA Live
 
+**Fork of [Goosly/wca-certificates](https://github.com/Goosly/wca-certificates) with added support for [Dual Rounds](https://www.worldcubeassociation.org/regulations/#9v) (WCA Regulation 9v).** When an event uses two consecutive rounds where all competitors advance and the podium is determined by each competitor's best result from either round, enable the "Dual rounds (R1+R2)" toggle per event before printing — certificates will reflect the correct combined ranking.
+
 Hosted at: https://timobrembeck.github.io/wca-certificates/
 
 # Development
