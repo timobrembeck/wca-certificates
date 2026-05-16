@@ -2,6 +2,7 @@ import {Component, ViewEncapsulation} from '@angular/core';
 import {ApiService} from '../common/api';
 import {PrintService} from '../common/print';
 import {Event} from '@wca/helpers/lib/models/event';
+import {Round} from '@wca/helpers/lib/models/round';
 import {Result} from '@wca/helpers/lib/models/result';
 import {Person} from '@wca/helpers';
 import {Helpers} from '../common/helpers';
@@ -15,6 +16,8 @@ import { environment } from '../environments/environment';
 })
 export class AppComponent {
   state: 'PRINT' | 'REFRESHING' = 'PRINT';
+
+  dualRoundEvents: Set<string> = new Set();
 
   // Info about competitions managed by user
   competitionsToChooseFrom: Array<String> = null;
@@ -63,6 +66,7 @@ export class AppComponent {
       try {
         this.acceptedPersons = wcif.persons.filter(p => !!p.registration && p.registration.status === 'accepted').length;
         this.events = this.wcif.events;
+        this.dualRoundEvents = new Set();
         this.events.forEach(function(e) {
           e.rounds.forEach(function(r) {
             const resultsOfEvent = r.results;
@@ -107,7 +111,7 @@ export class AppComponent {
 
   getWarningIfAny(eventId: string): string {
     const event: Event = this.events.filter(e => e.id === eventId)[0];
-    let results: Result[] = event.rounds[event.rounds.length - 1].results;
+    let results: Result[] = this.getEffectiveResults(event);
     results = this.filterResultsWithOnlyDNF(results);
     results = this.filterResultsByCountry(results);
 
@@ -161,6 +165,61 @@ export class AppComponent {
   private calculateRankingAfterFiltering(podiumPlaces: Result[]): void {
     podiumPlaces.forEach(function(p) {
       p['rankingAfterFiltering'] = podiumPlaces.filter(o => o.ranking < p.ranking).length + 1;
+    });
+  }
+
+  hasDualRoundOption(event: Event): boolean {
+    return event.rounds.length >= 2;
+  }
+
+  toggleDualRound(eventId: string): void {
+    if (this.dualRoundEvents.has(eventId)) {
+      this.dualRoundEvents.delete(eventId);
+    } else {
+      this.dualRoundEvents.add(eventId);
+    }
+  }
+
+  private getEffectiveResults(event: Event): Result[] {
+    if (this.dualRoundEvents.has(event.id) && event.rounds.length >= 2) {
+      return this.mergeDualRoundResults(event.rounds[0], event.rounds[1], event.rounds[1].format);
+    }
+    return event.rounds[event.rounds.length - 1].results;
+  }
+
+  private mergeDualRoundResults(round1: Round, round2: Round, format: string): Result[] {
+    const best: {[personId: number]: Result} = {};
+    [...round1.results, ...round2.results].forEach(result => {
+      if (!best[result.personId] || this.isBetterResult(result, best[result.personId], format)) {
+        best[result.personId] = result;
+      }
+    });
+    const merged = Object.values(best);
+    this.assignRankings(merged, format);
+    return merged;
+  }
+
+  private isBetterResult(a: Result, b: Result, format: string): boolean {
+    if (format === 'a' || format === 'm') {
+      if (a.average > 0 && b.average > 0) { return a.average < b.average; }
+      if (a.average > 0) { return true; }
+      if (b.average > 0) { return false; }
+    }
+    if (a.best > 0 && b.best > 0) { return a.best < b.best; }
+    if (a.best > 0) { return true; }
+    return false;
+  }
+
+  private assignRankings(results: Result[], format: string): void {
+    results.sort((a, b) => this.isBetterResult(a, b, format) ? -1 : this.isBetterResult(b, a, format) ? 1 : 0);
+    let rank = 1;
+    results.forEach((r, i) => {
+      if (i > 0 && !this.isBetterResult(results[i - 1], r, format) && !this.isBetterResult(r, results[i - 1], format)) {
+        r.ranking = results[i - 1].ranking;
+      } else {
+        r.ranking = rank;
+      }
+      rank++;
     });
   }
 
