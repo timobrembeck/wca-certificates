@@ -4,8 +4,11 @@ Hosted at: https://goosly.github.io/wca-certificates/
 
 # Development
 
+Requires Node.js 17+ users to set `NODE_OPTIONS=--openssl-legacy-provider` due to OpenSSL 3 incompatibility with webpack 4. The npm scripts handle this automatically.
+
 To run locally:
-1) > ng serve
+1) > npm install
+2) > npm start
 
 2) Navigate to http://localhost:4200/
 

@@ -27,8 +27,8 @@
   },
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build-prod": "ng build -c=production --base-href https://goosly.github.io/wca-certificates/"
+    "start": "NODE_OPTIONS=--openssl-legacy-provider ng serve",
+    "build-prod": "NODE_OPTIONS=--openssl-legacy-provider ng build -c=production --base-href https://goosly.github.io/wca-certificates/"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "0.1102.19",
